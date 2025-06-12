@@ -15,7 +15,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     })->name('dashboard');
 
     Route::middleware('auth')->group(function () {
-        // access control routes (users) 
+        // access control routes (users)
         Route::prefix('access-control/users')->name('users.')->group(function () {
             Route::get('/', [UserController::class, 'index'])->name('index');
             Route::get('create', [UserController::class, 'create'])->name('create');
@@ -32,6 +32,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('settings/appearance', function () {
             return Inertia::render('settings/appearance');
         })->name('appearance');
+        Route::get('registration-form', function () {
+            return Inertia::render('registration-form/registration-form');
+        })->name('registration-form');
     });
 });
 

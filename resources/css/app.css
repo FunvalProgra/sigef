@@ -157,3 +157,131 @@
         @apply bg-background text-foreground;
     }
 }
+
+/* Formulario Theme Personalizado */
+.form-theme {
+    --form-bg: #f2f2f2;
+    --form-card: #2e83f2;
+    --form-card-foreground: #f2f2f2;
+    --form-primary: #074073;
+    --form-primary-dark: #023859;
+    --form-secondary: #2b88d9;
+    --form-step-active: #023859;
+    --form-step-completed: #2b88d9;
+    --form-step-inactive: #b0b0b0;
+    --form-button: #074073;
+    --form-button-hover: #2b88d9;
+    --form-border: #023859;
+}
+
+/* Formulario Theme Personalizado - Variante alternativa */
+.form-theme {
+    --form-bg: #074073; /* Fondo general azul oscuro */
+    --form-card: #f2f2f2; /* Tarjeta clara para contraste */
+    --form-card-foreground: #074073; /* Texto azul oscuro en la tarjeta */
+    --form-primary: #2e83f2; /* Header de la tarjeta azul claro */
+    --form-primary-dark: #023859; /* No usado directamente, pero disponible */
+    --form-secondary: #2b88d9; /* Degradado header */
+    --form-step-active: #2e83f2; /* Paso activo azul claro */
+    --form-step-completed: #2b88d9; /* Paso completado azul medio */
+    --form-step-inactive: #f2f2f2; /* Paso inactivo blanco */
+    --form-button: #2e83f2; /* Botón azul claro */
+    --form-button-hover: #074073; /* Botón hover azul oscuro */
+    --form-border: #2e83f2; /* Bordes azul claro */
+}
+
+/* Formulario Theme Personalizado - Modo Oscuro */
+.form-theme.dark {
+    --form-bg: #021c33; /* Fondo general azul muy oscuro */
+    --form-card: #023859; /* Tarjeta azul oscuro */
+    --form-card-foreground: #f2f2f2; /* Texto claro en la tarjeta */
+    --form-primary: #2e83f2; /* Header azul claro */
+    --form-primary-dark: #2b88d9;
+    --form-secondary: #074073; /* Degradado header azul oscuro */
+    --form-step-active: #2e83f2; /* Paso activo azul claro */
+    --form-step-completed: #2b88d9; /* Paso completado azul medio */
+    --form-step-inactive: #023859; /* Paso inactivo azul oscuro */
+    --form-button: #2e83f2; /* Botón azul claro */
+    --form-button-hover: #074073; /* Botón hover azul oscuro */
+    --form-border: #2e83f2; /* Bordes azul claro */
+}
+
+.form-theme {
+    background: var(--form-bg);
+}
+
+.form-theme .form-card {
+    background: var(--form-card);
+    color: var(--form-card-foreground);
+}
+
+.form-theme .form-header {
+    background: linear-gradient(90deg, var(--form-primary), var(--form-secondary));
+    color: var(--form-card-foreground);
+}
+
+.form-theme .form-step-indicator.active {
+    background: var(--form-step-active);
+    color: #fff;
+}
+.form-theme .form-step-indicator.completed {
+    background: var(--form-step-completed);
+    color: #fff;
+}
+.form-theme .form-step-indicator.inactive {
+    background: var(--form-step-inactive);
+    color: var(--form-primary);
+    border: 1.5px solid var(--form-primary);
+}
+
+.form-theme .form-button {
+    background: var(--form-button);
+    color: #fff;
+}
+.form-theme .form-button:hover {
+    background: var(--form-button-hover);
+}
+
+.form-theme .form-border {
+    border-color: var(--form-border);
+}
+
+.form-theme.dark {
+    background: var(--form-bg);
+}
+
+.form-theme.dark .form-card {
+    background: var(--form-card);
+    color: var(--form-card-foreground);
+}
+
+.form-theme.dark .form-header {
+    background: linear-gradient(90deg, var(--form-primary), var(--form-secondary));
+    color: var(--form-card-foreground);
+}
+
+.form-theme.dark .form-step-indicator.active {
+    background: var(--form-step-active);
+    color: #fff;
+}
+.form-theme.dark .form-step-indicator.completed {
+    background: var(--form-step-completed);
+    color: #fff;
+}
+.form-theme.dark .form-step-indicator.inactive {
+    background: var(--form-step-inactive);
+    color: #b0b0b0;
+    border: 1.5px solid var(--form-primary);
+}
+
+.form-theme.dark .form-button {
+    background: var(--form-button);
+    color: #fff;
+}
+.form-theme.dark .form-button:hover {
+    background: var(--form-button-hover);
+}
+
+.form-theme.dark .form-border {
+    border-color: var(--form-border);
+}
