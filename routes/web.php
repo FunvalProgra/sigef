@@ -32,6 +32,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('settings/appearance', function () {
             return Inertia::render('settings/appearance');
         })->name('appearance');
+
+        Route::get('pre-inscription', function () {
+            return Inertia::render('pre-inscription/form1');
+        })->name('appearance');
+        Route::get('pre-inscription/friend', function () {
+            return Inertia::render('pre-inscription/friend');
+        })->name('appearance');
+        Route::get('pre-inscription/course', function () {
+            return Inertia::render('pre-inscription/corse');
+        })->name('appearance');
     });
 });
 
