@@ -63,6 +63,7 @@ const FormSummary: React.FC = () => {
             {formData.personalInfo.is_active_member && (
               <div><span className="font-medium">Barrio:</span> {findNameById(wards, formData.personalInfo.ward_id)}</div>
             )}
+            <div><span className="font-medium">Nombre del Reclutador:</span> {formData.personalInfo.recruiter_name}</div>
           </CardContent>
         </Card>
       </motion.div>
@@ -80,7 +81,6 @@ const FormSummary: React.FC = () => {
             <div><span className="font-medium">Sellado en el Templo:</span> {formData.churchInfo.temple_sealed ? 'Sí' : 'No'}</div>
             <div><span className="font-medium">Llamamiento:</span> {formData.churchInfo.calling}</div>
             <div><span className="font-medium">Estaca/Distrito/Misión:</span> {formData.churchInfo.stake_district_mission}</div>
-            <div><span className="font-medium">Nombre del Reclutador:</span> {formData.churchInfo.recruiter_name}</div>
             <div className="col-span-2"><span className="font-medium">¿Cómo se enteró de FUNVAL?:</span> {formData.churchInfo.how_did_you_hear}</div>
           </CardContent>
         </Card>
@@ -119,10 +119,10 @@ const FormSummary: React.FC = () => {
           <CardContent className="pt-4 grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
             <div><span className="font-medium">Número de Hijos:</span> {formData.familyInfo.children_count}</div>
             <div><span className="font-medium">Miembros del Hogar:</span> {formData.familyInfo.household_members}</div>
-            <div><span className="font-medium">Recibe Donación:</span> {findNameById(donationTypes, formData.familyInfo.receives_donation)}</div>
+            {/* <div><span className="font-medium">Recibe Donación:</span> {findNameById(donationTypes, formData.familyInfo.receives_donation)}</div>
             {formData.familyInfo.receives_donation !== 'none' && (
               <div><span className="font-medium">Monto de Bonificación Familiar:</span> {formData.familyInfo.family_bonus_amount}</div>
-            )}
+            )} */}
           </CardContent>
         </Card>
       </motion.div>

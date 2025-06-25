@@ -77,7 +77,7 @@ const FormContainer: React.FC = () => {
                 {currentStep === totalSteps + 1 ? "Resumen de Datos" : steps[currentStep - 1].title}
               </CardTitle>
               <div className="flex items-center">
-                <span className="text-sm font-medium mr-2">
+                <span className="text-md font-medium mr-2">
                   {currentStep <= totalSteps ? `Paso ${currentStep} de ${totalSteps}` : "Completado"}
                 </span>
                 {currentStep > totalSteps && <CheckCircle className="h-5 w-5" />}
@@ -91,7 +91,7 @@ const FormContainer: React.FC = () => {
           </div>
 
           {/* Step indicators */}
-          <div className="flex justify-between px-6 pt-4">
+          <div className="flex justify-center px-6 pt-4 ">
             {steps.map((step) => {
               let indicatorClass = "form-step-indicator inactive";
               if (step.id < currentStep) indicatorClass = "form-step-indicator completed";
@@ -100,7 +100,7 @@ const FormContainer: React.FC = () => {
                 <div
                   key={step.id}
                   onClick={() => currentStep > step.id && goToStep(step.id)}
-                  className={`flex flex-col items-center cursor-pointer transition-all duration-300`}
+                  className={`flex mx-4 flex-col items-center cursor-pointer transition-all duration-300`}
                 >
                   <div
                     className={`step-indicator flex items-center justify-center w-10 h-10 rounded-full mb-2 transition-all ${indicatorClass}`}
@@ -133,7 +133,7 @@ const FormContainer: React.FC = () => {
             )}
             {currentStep === 1 && <div />}
 
-            {currentStep <= totalSteps && (
+            {currentStep < totalSteps && (
               <Button
                 onClick={nextStep}
                 className="form-button flex items-center ml-auto"
@@ -142,7 +142,7 @@ const FormContainer: React.FC = () => {
               </Button>
             )}
 
-            {currentStep === totalSteps + 1 && (
+            {currentStep === totalSteps  && (
               <Button
                 onClick={() => {
                   // Imprime los datos del formulario en consola como JSON

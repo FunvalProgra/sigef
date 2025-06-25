@@ -50,7 +50,7 @@ export const AcademicEmploymentForm: React.FC = () => {
   return (
     <Form {...form}>
       <div className="space-y-6 animate-fade-in">
-        <h2 className="text-xl font-semibold text-gray-800">Información Académica y Laboral</h2>
+        <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200">Información Académica y Laboral</h2>
         <p className="text-muted-foreground">Por favor proporcione su información académica y laboral.</p>
 
         <div className="space-y-8">

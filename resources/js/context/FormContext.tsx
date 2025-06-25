@@ -16,6 +16,7 @@ export interface FormDataType {
     is_active_member: boolean;
     category_id: string;
     ward_id: string;
+    recruiter_name: string; // <-- MOVIDO aquí
   };
 
   // Church Information (missions, recruitment, church_info tables)
@@ -27,8 +28,8 @@ export interface FormDataType {
     temple_sealed: boolean;
     calling: string;
     stake_district_mission: string;
-    recruiter_name: string;
     how_did_you_hear: string;
+    // recruiter_name eliminado
   };
 
   // Academic & Employment (academic_info, employment tables)
@@ -88,6 +89,7 @@ const initialFormState: FormDataType = {
     is_active_member: false,
     category_id: '',
     ward_id: '',
+    recruiter_name: '', // <-- MOVIDO aquí
   },
 
   // Church Information
@@ -99,8 +101,8 @@ const initialFormState: FormDataType = {
     temple_sealed: false,
     calling: '',
     stake_district_mission: '',
-    recruiter_name: '',
     how_did_you_hear: '',
+    // recruiter_name eliminado
   },
 
   // Academic & Employment
@@ -163,7 +165,7 @@ const FormContext = createContext<FormContextType | undefined>(undefined);
 export const FormProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [formData, setFormData] = useState<FormDataType>(initialFormState);
   const [currentStep, setCurrentStep] = useState(1);
-  const totalSteps = 5; // Mantén este valor para los pasos de formulario, pero permite avanzar al resumen
+  const totalSteps = 6; // Mantén este valor para los pasos de formulario, pero permite avanzar al resumen
 
   const nextStep = () => {
     if (currentStep < totalSteps + 1) { // Permite avanzar hasta el resumen

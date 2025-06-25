@@ -20,6 +20,7 @@ const personalInfoSchema = z.object({
   birth_date: z.string().min(1, { message: 'Por favor ingrese su fecha de nacimiento' }),
   phone: z.string().min(7, { message: 'Por favor ingrese un número de teléfono válido' }),
   how_did_you_hear: z.string().min(1, { message: 'Por favor indique cómo se enteró de FUNVAL' }),
+  recruiter_name: z.string().optional(), // <-- Agregado aquí
 });
 
 export const PersonalInfoForm: React.FC = () => {
@@ -31,18 +32,19 @@ export const PersonalInfoForm: React.FC = () => {
     defaultValues: {
       ...formData.personalInfo,
       how_did_you_hear: formData.churchInfo.how_did_you_hear,
+      recruiter_name: formData.personalInfo.recruiter_name,
     },
   });
 
   // On form changes, update context
   React.useEffect(() => {
     const subscription = form.watch((value) => {
-      const { how_did_you_hear, ...personalInfo } = value;
-      updateFormSection('personalInfo', personalInfo);
+      const { how_did_you_hear, recruiter_name, ...personalInfo } = value;
+      updateFormSection('personalInfo', { ...personalInfo, recruiter_name });
       updateFormSection('churchInfo', { ...formData.churchInfo, how_did_you_hear });
     });
     return () => subscription.unsubscribe();
-  }, [form.watch, updateFormSection]);
+  }, [form.watch, updateFormSection, formData.churchInfo]);
 
   return (
     <Form {...form}>
@@ -72,7 +74,7 @@ export const PersonalInfoForm: React.FC = () => {
               <FormItem>
                 <FormLabel>Correo Electrónico</FormLabel>
                 <FormControl>
-                  <Input placeholder="ejemplo@correo.com" {...field} />
+                  <Input required placeholder="ejemplo@correo.com" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -227,6 +229,20 @@ export const PersonalInfoForm: React.FC = () => {
                 <FormLabel>Teléfono</FormLabel>
                 <FormControl>
                   <Input placeholder="+51 987654321" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="recruiter_name"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Nombre del Reclutador</FormLabel>
+                <FormControl>
+                  <Input placeholder="Juan Pérez" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>

@@ -21,7 +21,6 @@ const churchInfoSchema = z.object({
   temple_sealed: z.boolean().default(false),
   calling: z.string().optional(),
   stake_district_mission: z.string().optional(),
-  recruiter_name: z.string().optional(),
   is_active_member: z.boolean().default(false),
   ward_id: z.string().optional(),
 });
@@ -124,20 +123,6 @@ export const ChurchInfoForm: React.FC = () => {
                 <FormLabel>Estaca/Distrito/Misión</FormLabel>
                 <FormControl>
                   <Input placeholder="Estaca Ciudad de México" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="recruiter_name"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Nombre del Reclutador</FormLabel>
-                <FormControl>
-                  <Input placeholder="Juan Pérez" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
