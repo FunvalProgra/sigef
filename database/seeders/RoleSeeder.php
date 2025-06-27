@@ -2,27 +2,28 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use Database\Seeders\Traits\JsonLoaderTrait;
 use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 
 class RoleSeeder extends Seeder
 {
+    use JsonLoaderTrait;
     /**
      * Run the database seeds.
      */
     public function run(): void
     {
-        Role::insert([
-            ['name' => 'admin', 'guard_name' => 'web'],
-            ['name' => 'student', 'guard_name' => 'web'],
-            ['name' => 'teacher', 'guard_name' => 'web'],
-            ['name' => 'controller', 'guard_name' => 'web'],
-            ['name' => 'recruiter', 'guard_name' => 'web'],
-        ]);
- 
-        $adminRole = Role::findByName('admin'); 
+        $roles = $this->loadJsonData('roles.json');
+
+        if ($roles === null) {
+            return;
+        }
+
+        Role::insert($roles);
+
+        $adminRole = Role::findByName('Administrador');
         $adminRole->givePermissionTo(Permission::all());
     }
 }
