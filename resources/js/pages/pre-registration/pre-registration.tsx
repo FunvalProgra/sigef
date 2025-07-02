@@ -198,7 +198,12 @@ function PreRegistration({ countries, stakes , courses}: PreRegistrationProps) {
         />
 
       case 'preregistration-form':
-        return <PreRegistrationFormStep onNext={handlePreRegistrationSubmit} onBack={goBack} courses={courses} />
+        return <PreRegistrationFormStep 
+          onNext={handlePreRegistrationSubmit} 
+          onBack={goBack} 
+          countries={countries}
+          stakes={stakes}
+        />
 
       case 'female-filter':
         return (

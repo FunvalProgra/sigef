@@ -16,6 +16,7 @@ Route::get('/', function () {
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('dashboard', [ReferenceController::class, 'dashboard'])->name('dashboard');
+    Route::get('dashboard/preinscripciones', [PreInscriptionController::class, 'dashboard'])->name('dashboard.preinscripciones');
 
     Route::middleware('auth')->group(function () {
         // access control routes (users)

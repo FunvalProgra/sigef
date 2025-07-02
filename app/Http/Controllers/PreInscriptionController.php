@@ -224,4 +224,100 @@ class PreInscriptionController extends Controller
             ], 500);
         }
     }
+
+    /**
+     * Display dashboard with pre-inscriptions statistics
+     */
+    public function dashboard()
+    {
+        try {
+            $user = Auth::user();
+            $query = PreInscription::query()->with(['country', 'stake']);
+
+            if ($user->hasRole('Responsable') && !$user->hasRole('Administrador')) {
+                $stakesIds = Stake::where('user_id', $user->id)->pluck('id');
+                $query->whereIn('stake_id', $stakesIds);
+            }
+
+            $preInscriptions = $query->get();
+            $total = $preInscriptions->count();
+
+            // General statistics
+            $pending = $preInscriptions->where('status.id', 1)->count();
+            $approved = $preInscriptions->where('status.id', 2)->count();
+            $rejected = $preInscriptions->where('status.id', 3)->count();
+            $approvalPercentage = ($approved + $rejected) > 0 ? round(($approved / ($approved + $rejected)) * 100, 1) : 0;
+
+            // PreInscriptions this week
+            $newThisWeek = $preInscriptions->where('created_at', '>=', now()->startOfWeek())->count();
+
+            $stats = [
+                'total' => $total,
+                'pending' => $pending,
+                'approved' => $approved,
+                'rejected' => $rejected,
+                'approvalPercentage' => $approvalPercentage,
+                'newThisWeek' => $newThisWeek,
+            ];
+
+            // PreInscriptions by country
+            $preInscriptionsByCountry = $preInscriptions->groupBy('country.name')
+                ->map(function ($group, $country) use ($total) {
+                    $quantity = $group->count();
+                    return [
+                        'country' => $country ?? 'No Country',
+                        'quantity' => $quantity,
+                        'percentage' => $total > 0 ? round(($quantity / $total) * 100, 1) : 0
+                    ];
+                })
+                ->sortByDesc('quantity')
+                ->values()
+                ->toArray();
+
+            // PreInscriptions by stake
+            $preInscriptionsByStake = $preInscriptions->groupBy('stake.name')
+                ->map(function ($group, $stake) use ($total) {
+                    $quantity = $group->count();
+                    return [
+                        'stake' => $stake ?? 'No Stake',
+                        'quantity' => $quantity,
+                        'percentage' => $total > 0 ? round(($quantity / $total) * 100, 1) : 0
+                    ];
+                })
+                ->sortByDesc('quantity')
+                ->values()
+                ->toArray();
+
+            // PreInscriptions by modality preference
+            $preInscriptionsByModality = $preInscriptions->groupBy('job_type_preference.name')
+                ->map(function ($group, $modality) use ($total) {
+                    $quantity = $group->count();
+                    return [
+                        'modality' => $modality ?? 'No Preference',
+                        'quantity' => $quantity,
+                        'percentage' => $total > 0 ? round(($quantity / $total) * 100, 1) : 0
+                    ];
+                })
+                ->sortByDesc('quantity')
+                ->values()
+                ->toArray();
+
+            return Inertia::render('dashboard-preinscripciones', [
+                'data' => [
+                    'stats' => $stats,
+                    'preInscriptionsByCountry' => $preInscriptionsByCountry,
+                    'preInscriptionsByStake' => $preInscriptionsByStake,
+                    'preInscriptionsByModality' => $preInscriptionsByModality,
+                    'preInscriptions' => $preInscriptions
+                ]
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al obtener el dashboard de preinscripciones',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
 }

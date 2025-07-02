@@ -5,74 +5,20 @@ import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ArrowLeft, UserPlus } from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
+import { useState } from 'react';
 import { usePage } from '@inertiajs/react';
-import { Country, PreRegistrationFormData, Stake, countries, stakes } from '../../../types/forms';
+import { PreRegistrationFormData } from '../../../types/forms';
 import { Enums } from '@/types/global';
+import SearchableSelect from '@/components/ui/searchable-select';
 
 interface PreRegistrationFormStepProps {
     onNext: (data: PreRegistrationFormData) => void;
     onBack: () => void;
+    stakes: { id: number; name: string, country_id: number }[]
+    countries: { id: number; name: string; code: string }[]
 }
 
-interface CountrySelectProps {
-    countries: Country[];
-    value: string;
-    onChange: (value: string) => void;
-    placeholder?: string;
-}
-
-// CountrySelect adaptado a dark mode
-function CountrySelect({ countries, value, onChange, placeholder }: CountrySelectProps) {
-    const [search, setSearch] = useState('');
-    const filteredCountries = countries.filter((country) => country.name.toLowerCase().includes(search.toLowerCase()));
-
-    const selectRef = useRef<HTMLDivElement>(null);
-    useEffect(() => {
-        const handleClickOutside = (event: MouseEvent) => {
-            if (selectRef.current && !selectRef.current.contains(event.target as Node)) {
-                setSearch('');
-            }
-        };
-        document.addEventListener('mousedown', handleClickOutside);
-        return () => {
-            document.removeEventListener('mousedown', handleClickOutside);
-        };
-    }, []);
-
-    return (
-        <Select value={value} onValueChange={onChange}>
-            <SelectTrigger>
-                <SelectValue placeholder={placeholder} />
-            </SelectTrigger>
-            <SelectContent ref={selectRef} className="bg-background max-h-60 overflow-auto pt-2 dark:bg-gray-900">
-                <div className="bg-background border-muted sticky top-0 z-10 border-b px-3 pb-2 dark:border-gray-700 dark:bg-gray-900">
-                    <Input
-                        autoFocus
-                        placeholder="Buscar país..."
-                        value={search}
-                        onChange={(e) => setSearch(e.target.value)}
-                        onClick={(e) => e.stopPropagation()}
-                        className="bg-background text-foreground w-full dark:bg-gray-900"
-                        name="country_search"
-                    />
-                </div>
-
-                {filteredCountries.length > 0 ? (
-                    filteredCountries.map((country) => (
-                        <SelectItem key={country.name} value={country.name}>
-                            {country.name}
-                        </SelectItem>
-                    ))
-                ) : (
-                    <div className="text-muted-foreground p-4 text-center select-none">No se encontraron países</div>
-                )}
-            </SelectContent>
-        </Select>
-    );
-}
-
-export function PreRegistrationFormStep({ onNext, onBack }: PreRegistrationFormStepProps) {
+export function PreRegistrationFormStep({ onNext, onBack, stakes, countries }: PreRegistrationFormStepProps) {
     const { enums } = usePage<{ enums: Enums }>().props;
 
     const [formData, setFormData] = useState<PreRegistrationFormData>({
@@ -82,14 +28,27 @@ export function PreRegistrationFormStep({ onNext, onBack }: PreRegistrationFormS
         second_last_name: '',
         gender: '0',
         age: '',
-        country_id: '',
+        country_id: '0',
         phone: '',
-        stake_id: '',
+        stake_id: '0',
         email: '',
         marital_status: '0',
         served_mission: '',
         selected_course: '',
     });
+
+    // Validación defensiva para evitar errores
+    if (!enums || !enums.gender || !enums.maritalStatus) {
+        return (
+            <div className="mx-auto max-w-3xl">
+                <Card className="border-2">
+                    <CardContent className="p-6">
+                        <p className="text-center text-muted-foreground">Cargando formulario...</p>
+                    </CardContent>
+                </Card>
+            </div>
+        );
+    }
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -110,7 +69,10 @@ export function PreRegistrationFormStep({ onNext, onBack }: PreRegistrationFormS
             'email',
             'served_mission',
         ];
-        const isBasicFieldsValid = requiredFields.every((field) => formData[field as keyof PreRegistrationFormData]?.trim() !== '');
+        const isBasicFieldsValid = requiredFields.every((field) => {
+            const value = formData[field as keyof PreRegistrationFormData];
+            return value !== undefined && value !== null && value.toString().trim() !== '' && value.toString() !== '0';
+        });
         const isGenderValid = formData.gender !== '0' && formData.gender !== '';
         const isMaritalStatusValid = formData.marital_status !== '0' && formData.marital_status !== '';
 
@@ -121,14 +83,17 @@ export function PreRegistrationFormStep({ onNext, onBack }: PreRegistrationFormS
         setFormData((prev) => {
             const updated = { ...prev, [field]: value };
 
+            // Si se cambia el país, actualizar el código de teléfono y resetear la estaca
             if (field === 'country_id') {
-                const selected = countries.find((c) => c.name === value);
-                if (selected) {
+                const selected = countries.find((c) => c.id.toString() === value);
+                if (selected && selected.code) {
                     const code = selected.code;
                     if (!updated.phone.startsWith(code)) {
                         updated.phone = `${code} `;
                     }
                 }
+                // Resetear la estaca cuando se cambia el país
+                updated.stake_id = '0';
             }
 
             return updated;
@@ -185,12 +150,14 @@ export function PreRegistrationFormStep({ onNext, onBack }: PreRegistrationFormS
 
                             {/* País */}
                             <div>
-                                <Label htmlFor="country_id">Pais *</Label>
-                                <CountrySelect
-                                    countries={countries}
-                                    value={formData.country_id}
+                                <Label htmlFor="country_id">País *</Label>
+                                <SearchableSelect
+                                    data={countries}
+                                    id="country_id"
+                                    name="country_id"
+                                    value={formData.country_id === '0' ? '' : formData.country_id}
+                                    searchField="name"
                                     onChange={(value) => updateFormData('country_id', value)}
-                                    placeholder="Selecionar país"
                                 />
                             </div>
 
@@ -201,15 +168,17 @@ export function PreRegistrationFormStep({ onNext, onBack }: PreRegistrationFormS
                             <div>
                                 <Label htmlFor="stake_id">Estaca/Distrito/Misión *</Label>
                                 <Select value={formData.stake_id} onValueChange={(value) => updateFormData('stake_id', value)}>
-                                    <SelectTrigger>
+                                    <SelectTrigger id="stake_id" name="stake_id">
                                         <SelectValue placeholder="Selecciona tu estaca" />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        {stakes.map((stake: Stake) => (
-                                            <SelectItem key={stake.id} value={stake.name}>
-                                                {stake.name}
-                                            </SelectItem>
-                                        ))}
+                                        {formData.country_id && formData.country_id !== '0' ?
+                                            stakes.filter(stake => stake.country_id.toString() === formData.country_id).map((stake) => (
+                                                <SelectItem key={stake.id} value={stake.id.toString()}>
+                                                    {stake.name}
+                                                </SelectItem>
+                                            ))
+                                            : <SelectItem value="0" disabled>Selecciona un país primero</SelectItem>}
                                     </SelectContent>
                                 </Select>
                             </div>
