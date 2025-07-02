@@ -19,7 +19,7 @@ export default function PreInscription({ preInscriptions }: { preInscriptions: P
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Pre-inscripciones" />
             <PreInscriptionLayout headings={{
-                title: 'Dashboard de Pre-inscripciones',
+                title: 'Lista de Pre-inscripciones',
                 description: 'Aquí puedes ver y gestionar todas las pre-inscripciones recibidas.',
             }}>
                 <div className="space-y-6 w-full flex flex-col">
