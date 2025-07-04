@@ -82,9 +82,10 @@ export function PreRegistrationFormStep({ onNext, onBack, stakes, countries }: P
     const updateFormData = (field: keyof PreRegistrationFormData, value: string) => {
         setFormData((prev) => {
             const updated = { ...prev, [field]: value };
+            // Validación específica para el campo de teléfono no funciona
 
             // Si se cambia el país, actualizar el código de teléfono y resetear la estaca
-            if (field === 'country_id') {
+            /* if (field === 'country_id') {
                 const selected = countries.find((c) => c.id.toString() === value);
                 if (selected && selected.code) {
                     const code = selected.code;
@@ -94,7 +95,7 @@ export function PreRegistrationFormStep({ onNext, onBack, stakes, countries }: P
                 }
                 // Resetear la estaca cuando se cambia el país
                 updated.stake_id = '0';
-            }
+            } */
 
             return updated;
         });

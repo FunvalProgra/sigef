@@ -165,7 +165,7 @@ export function CourseSelectionStep({ formData, onNext, onBack, courses }: Cours
                         </TableCell>
                         <TableCell>
                           <span className="text-[rgb(46_131_242_/_1)] font-medium">
-                            {course.duration}
+                            {course.duration} semanas
                           </span>
                         </TableCell>
                         <TableCell>

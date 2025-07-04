@@ -15,12 +15,12 @@ type HeadingsProps = {
 const sidebarNavItems: NavItem[] = [
     {
         title: 'Dashboard',
-        href: '/references',
+        href: '/dashboard',
         icon: null,
     },
     {
         title: 'References',
-        href: '/references/list',
+        href: '/references',
         icon: null,
     },
 ];

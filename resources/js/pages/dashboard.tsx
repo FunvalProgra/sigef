@@ -1,11 +1,26 @@
 import { PlaceholderPattern } from '@/components/ui/placeholder-pattern';
 import AppLayout from '@/layouts/app-layout';
-import { type BreadcrumbItem } from '@/types';
-import { Head } from '@inertiajs/react';
+import { type BreadcrumbItem, type NavItem } from '@/types';
+import { Head, Link } from '@inertiajs/react';
 import { GraduationCap, Users, CheckCircle, XCircle, Clock, TrendingUp, MapPin, Briefcase } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+
+const sidebarNavItems: NavItem[] = [
+    {
+        title: 'Dashboard',
+        href: '/dashboard',
+        icon: null,
+    },
+    {
+        title: 'References',
+        href: '/references',
+        icon: null,
+    },
+];
 
 interface ReferenceStats {
     total: number
@@ -81,15 +96,45 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 export default function Dashboard({ data }: DashboardProps) {
+    // Check if we're on the client side to get window.location
+    if (typeof window === 'undefined') {
+        return null;
+    }
+
+    const currentPath = (window.location.pathname).split('/').slice(0, 3).join('/');
+
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Dashboard" />
+
+
+
             <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
                 <div className="flex items-center justify-between space-y-2">
                     <div>
                         <h2 className="text-3xl font-bold tracking-tight text-blue-700">Dashboard de Referencias</h2>
                         <p className="text-muted-foreground">Resumen y métricas de las referencias recibidas</p>
                     </div>
+                    {/* Sidebar Navigation */}
+            <div className="px-4 py-2">
+                <nav className="flex space-x-2 justify-end py-2">
+                    {sidebarNavItems.map((item, index) => (
+                        <Button
+                            key={`${item.href}-${index}`}
+                            size="sm"
+                            variant="ghost"
+                            asChild
+                            className={cn('justify-start', {
+                                'bg-muted': currentPath === item.href,
+                            })}
+                        >
+                            <Link href={item.href} prefetch>
+                                {item.title}
+                            </Link>
+                        </Button>
+                    ))}
+                </nav>
+            </div>
                 </div>
 
                 {/* Métricas principales */}

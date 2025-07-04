@@ -20,7 +20,8 @@ const PreInscriptionReview = ({ preInscription }: { preInscription: PreInscripti
 
     const { data, setData, put, processing, errors, reset } = useForm<Required<PreInscriptionUpdateFormData>>(initialPreInscriptionUpdateData);
 
-    const handleSubmit = async () => {
+    const handleSubmit = async (e) => {
+        e.preventDefault();
         return new Promise<void>((resolve, reject) => {
             put(route('pre-inscription.update', preInscription.id), {
                 onSuccess: () => {

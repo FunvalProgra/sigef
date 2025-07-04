@@ -15,12 +15,12 @@ type HeadingsProps = {
 const sidebarNavItems: NavItem[] = [
     {
         title: 'Dashboard',
-        href: '/pre-inscription',
+        href: '/dashboard/preinscripciones',
         icon: null,
     },
     {
         title: 'Pre-inscriptions',
-        href: '/pre-inscription/list',
+        href: '/pre-inscription',
         icon: null,
     },
 ];
