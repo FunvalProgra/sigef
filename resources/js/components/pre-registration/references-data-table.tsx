@@ -1,5 +1,3 @@
-import { ColumnDef } from "@tanstack/react-table";
-import { Checkbox } from "../ui/checkbox";
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -7,40 +5,36 @@ import {
     DropdownMenuLabel,
     DropdownMenuSeparator,
     DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { Button } from "../ui/button";
-import { Badge } from "../ui/badge";
-import { MoreHorizontal, CheckCircle, User } from "lucide-react";
-import { Reference } from "@/types/reference";
-import ReferenceOverview from "./reference-overview";
-import ReferenceReview from "./reference-review";
+} from '@/components/ui/dropdown-menu';
+import { Reference } from '@/types/reference';
+import { ColumnDef } from '@tanstack/react-table';
+import { MoreHorizontal } from 'lucide-react';
+import { Badge } from '../ui/badge';
+import { Button } from '../ui/button';
+import { Checkbox } from '../ui/checkbox';
+import ReferenceOverview from './reference-overview';
+import ReferenceReview from './reference-review';
+import ReferenceEdit from './ReferenceEdit';
 
 export const columns: ColumnDef<Reference>[] = [
     {
-        id: "select",
+        id: 'select',
         header: ({ table }) => (
             <Checkbox
-                checked={
-                    table.getIsAllPageRowsSelected() ||
-                    (table.getIsSomePageRowsSelected() && "indeterminate")
-                }
+                checked={table.getIsAllPageRowsSelected() || (table.getIsSomePageRowsSelected() && 'indeterminate')}
                 onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
                 aria-label="Select all"
             />
         ),
         cell: ({ row }) => (
-            <Checkbox
-                checked={row.getIsSelected()}
-                onCheckedChange={(value) => row.toggleSelected(!!value)}
-                aria-label="Select row"
-            />
+            <Checkbox checked={row.getIsSelected()} onCheckedChange={(value) => row.toggleSelected(!!value)} aria-label="Select row" />
         ),
         enableSorting: false,
         enableHiding: false,
     },
     {
-        accessorKey: "name",
-        header: "Persona Referida",
+        accessorKey: 'name',
+        header: 'Persona Referida',
         cell: ({ row }) => {
             const reference = row.original;
             return (
@@ -54,8 +48,8 @@ export const columns: ColumnDef<Reference>[] = [
         },
     },
     {
-        accessorKey: "phone",
-        header: "Contacto",
+        accessorKey: 'phone',
+        header: 'Contacto',
         cell: ({ row }) => {
             const reference = row.original;
             return (
@@ -67,18 +61,16 @@ export const columns: ColumnDef<Reference>[] = [
         },
     },
     {
-        accessorKey: "stake.name",
-        header: "Ubicación",
+        accessorKey: 'stake.name',
+        header: 'Ubicación',
         cell: ({ row }) => {
             const reference = row.original;
-            return (
-                <div className="text-sm">{reference.stake.name}</div>
-            );
+            return <div className="text-sm">{reference.stake.name}</div>;
         },
     },
     {
-        accessorKey: "referrer_name",
-        header: "Referente",
+        accessorKey: 'referrer_name',
+        header: 'Referente',
         cell: ({ row }) => {
             const reference = row.original;
             return (
@@ -92,47 +84,43 @@ export const columns: ColumnDef<Reference>[] = [
         },
     },
     {
-        accessorKey: "created_at",
-        header: "Fecha",
+        accessorKey: 'created_at',
+        header: 'Fecha',
         cell: ({ row }) => {
             const reference = row.original;
-            return (
-                <div className="text-sm">
-                    {reference.created_at ? new Date(reference.created_at).toLocaleDateString() : '-'}
-                </div>
-            );
+            return <div className="text-sm">{reference.created_at ? new Date(reference.created_at).toLocaleDateString() : '-'}</div>;
         },
     },
     {
-        accessorKey: "status",
-        header: "Estado",
+        accessorKey: 'status',
+        header: 'Estado',
         cell: ({ row }) => {
             const reference = row.original;
             const status = reference.status.name.toLowerCase();
 
             return (
-                <Badge
-                    variant={
-                        status === "aprobado"
-                            ? "default"
-                            : status === "rechazado"
-                                ? "destructive"
-                                : "secondary"
-                    }
-                >
+                <Badge variant={status === 'aprobado' ? 'default' : status === 'rechazado' ? 'destructive' : 'secondary'}>
                     {reference.status.name}
                 </Badge>
             );
         },
     },
     {
-        id: "actions",
-        header: "Acciones",
+        accessorKey: '',
+        header: 'Modificado por:',
+        cell: ({ row }) => {
+            const reference = row.original;
+            return <div className="text-sm">Kevin</div>;
+        },
+    },
+    {
+        id: 'actions',
+        header: 'Acciones',
         enableHiding: false,
         cell: ({ row }) => {
             const reference = row.original;
-            const isPending = reference.status.name.toLowerCase() === "pendiente";
-
+            const isPending = reference.status.name.toLowerCase() === 'pendiente';
+            console.log(reference);
             return (
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
@@ -145,23 +133,24 @@ export const columns: ColumnDef<Reference>[] = [
                         <DropdownMenuLabel>Acciones</DropdownMenuLabel>
                         <DropdownMenuSeparator />
                         {isPending && (
-                            <DropdownMenuItem
-                                className="text-blue-600 focus:text-blue-700 focus:bg-blue-50"
-                                asChild
-                            >
-                                <ReferenceReview
-                                    reference={reference}
-                                />
+                            <DropdownMenuItem className="text-blue-600 focus:bg-blue-50 focus:text-blue-700" asChild>
+                                <ReferenceReview reference={reference} />
                             </DropdownMenuItem>
                         )}
                         <DropdownMenuItem className="focus:bg-blue-50" asChild>
-                            <ReferenceOverview
+                            <ReferenceOverview reference={reference} />
+                        </DropdownMenuItem>
+                        <DropdownMenuItem className="text-green-600 focus:bg-green-50 focus:text-green-700" asChild>
+                            <ReferenceEdit
                                 reference={reference}
+                                onSave={(updated) => {
+                                    console.log('Referencia editada:', updated);
+                                }}
                             />
                         </DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>
-            )
+            );
         },
     },
 ];

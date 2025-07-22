@@ -6,7 +6,9 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { Country } from '@/types/country';
 import { type PreInscription } from '@/types/pre-inscription';
+import { Stake } from '@/types/stake';
 import { ColumnDef } from '@tanstack/react-table';
 import { MoreHorizontal } from 'lucide-react';
 import { Badge } from '../ui/badge';
@@ -14,8 +16,16 @@ import { Button } from '../ui/button';
 import { Checkbox } from '../ui/checkbox';
 import PreInscriptionOverview from './pre-inscription-overview';
 import PreInscriptionReview from './pre-inscription-review';
+import PreInscriptionEdit from './PreInscriptionEdit';
 
-export const columns: ColumnDef<PreInscription>[] = [
+// Definimos la interfaz para los props del componente
+interface TableColumnsProps {
+    countries: Country[];
+    stakes: Stake[];
+}
+
+// Convertimos las columnas en una función que recibe props
+export const getColumns = ({ countries, stakes }: TableColumnsProps): ColumnDef<PreInscription>[] => [
     {
         id: 'select',
         header: ({ table }) => (
@@ -122,13 +132,22 @@ export const columns: ColumnDef<PreInscription>[] = [
         },
     },
     {
+        accessorKey: '',
+        header: 'Modificado por:',
+        cell: ({ row }) => {
+            const preInscription = row.original;
+            console.log(preInscription);
+            return <div className="text-sm">{(preInscription as any).modified_by ?? 'No especificado'}</div>;
+        },
+    },
+    {
         id: 'actions',
         header: 'Acciones',
         enableHiding: false,
         cell: ({ row }) => {
             const preInscription = row.original;
             const isPending = preInscription.status?.name.toLowerCase() === 'pendiente';
-
+            console.log(preInscription);
             return (
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
@@ -147,6 +166,9 @@ export const columns: ColumnDef<PreInscription>[] = [
                         )}
                         <DropdownMenuItem className="focus:bg-blue-50" asChild>
                             <PreInscriptionOverview preInscription={preInscription} />
+                        </DropdownMenuItem>
+                        <DropdownMenuItem className="focus:bg-blue-50" asChild>
+                            <PreInscriptionEdit preInscription={preInscription} />
                         </DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>
