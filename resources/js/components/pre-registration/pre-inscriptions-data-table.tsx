@@ -6,9 +6,7 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Country } from '@/types/country';
 import { type PreInscription } from '@/types/pre-inscription';
-import { Stake } from '@/types/stake';
 import { ColumnDef } from '@tanstack/react-table';
 import { MoreHorizontal } from 'lucide-react';
 import { Badge } from '../ui/badge';
@@ -18,14 +16,7 @@ import PreInscriptionOverview from './pre-inscription-overview';
 import PreInscriptionReview from './pre-inscription-review';
 import PreInscriptionEdit from './PreInscriptionEdit';
 
-// Definimos la interfaz para los props del componente
-interface TableColumnsProps {
-    countries: Country[];
-    stakes: Stake[];
-}
-
-// Convertimos las columnas en una función que recibe props
-export const getColumns = ({ countries, stakes }: TableColumnsProps): ColumnDef<PreInscription>[] => [
+export const columns: ColumnDef<PreInscription>[] = [
     {
         id: 'select',
         header: ({ table }) => (
