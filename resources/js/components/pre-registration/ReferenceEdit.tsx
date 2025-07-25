@@ -1,186 +1,350 @@
 import { Pencil } from 'lucide-react';
-import { useState } from 'react';
+import { useForm } from 'react-hook-form';
 import { Reference } from '../../types/reference';
 import { Button } from '../ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { CompleteDialog } from '../ui/complete-dialog';
+import { Form, FormControl, FormField, FormItem, FormMessage } from '../ui/form';
+import { Input } from '../ui/input';
 import { Label } from '../ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
+
+type FormValues = {
+    name: string;
+    gender: { id: number; name: string };
+    country: { id: number; name: string };
+    phone: string;
+    stake: { id: number; name: string };
+    referrer_name: string;
+    referrer_phone: string;
+    relationship_with_referred: { id: number; name: string };
+    created_at: string;
+    status: { id: number; name: string };
+    declined_reason?: { id: number; name: string };
+};
 
 type Props = {
     reference: Reference;
     onSave?: (updated: Reference) => void;
+    enums?: {
+        gender?: Array<{ id: number; name: string }>;
+        country?: Array<{ id: number; name: string }>;
+        stake?: Array<{ id: number; name: string }>;
+        relationship?: Array<{ id: number; name: string }>;
+        status?: Array<{ id: number; name: string }>;
+        declinedReasons?: Array<{ id: number; name: string }>;
+    };
 };
 
-const ReferenceEdit = ({ reference, onSave }: Props) => {
-    // Estado local para editar
-    const [form, setForm] = useState({ ...reference });
+const ReferenceEdit = ({ reference, onSave, enums }: Props) => {
+    const form = useForm<FormValues>({
+        defaultValues: {
+            name: reference.name || '',
+            gender: reference.gender || { id: 0, name: 'not-selected' },
+            country: reference.country || { id: 0, name: 'not-selected' },
+            phone: reference.phone || '',
+            stake: reference.stake || { id: 0, name: 'not-selected' },
+            referrer_name: reference.referrer_name || '',
+            referrer_phone: reference.referrer_phone || '',
+            relationship_with_referred: reference.relationship_with_referred || { id: 0, name: 'not-selected' },
+            created_at: reference.created_at ? new Date(reference.created_at).toISOString().substr(0, 10) : '',
+            status: reference.status || { id: 0, name: 'not-selected' },
+            declined_reason: reference.declined_reason || undefined,
+        },
+    });
 
-    // Manejador genérico para inputs
-    const onChange = (field: keyof Reference, value: any) => {
-        setForm((prev) => ({ ...prev, [field]: value }));
+    const onSubmit = (data: FormValues) => {
+        const updatedReference: Reference = {
+            ...reference,
+            ...data,
+            created_at: data.created_at ? new Date(data.created_at).toISOString() : reference.created_at,
+        };
+        if (onSave) onSave(updatedReference);
     };
 
-    // Manejo para campos anidados como gender.name
-    const onNestedChange = (field: keyof Reference, nestedField: string, value: any) => {
-        setForm((prev) => ({
-            ...prev,
-            [field]: {
-                ...(prev as any)[field],
-                [nestedField]: value,
-            },
-        }));
-    };
+    const selectedStatus = form.watch('status');
 
-    const handleSubmit = () => {
-        // Aquí puedes llamar a la API para guardar o usar el onSave
-        if (onSave) onSave(form);
-        // También podrías cerrar modal si CompleteDialog lo permite
-    };
-    console.log(form);
     return (
         <CompleteDialog
             btnLabel="Editar"
-            dialogTitle="Editar"
-            dialogDescription="Modifica los campos y guarda los cambios"
+            dialogTitle="Editar Referencia"
+            dialogDescription="Modifica los detalles de la referencia seleccionada."
             icon={<Pencil className="h-4 w-4" />}
         >
-            <div className="grid max-h-[80vh] gap-6 overflow-y-auto py-4">
-                <Card className="border-blue-200">
-                    <CardHeader className="bg-transparent">
-                        <CardTitle className="text-lg text-blue-700 dark:text-blue-300">Persona Referida</CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                        <div>
-                            <Label>Nombre Completo</Label>
-                            <input
-                                type="text"
-                                value={form.name}
-                                onChange={(e) => onChange('name', e.target.value)}
-                                className="input input-bordered w-full"
+            <Form {...form}>
+                <form onSubmit={form.handleSubmit(onSubmit)} className="grid max-h-[80vh] gap-6 overflow-y-auto py-4">
+                    {/* --- Persona Referida --- */}
+                    <Card className="border-blue-200">
+                        <CardHeader>
+                            <CardTitle className="text-lg text-blue-700 dark:text-blue-300">Persona Referida</CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-3">
+                            <FormField
+                                name="name"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <Label>Nombre Completo</Label>
+                                        <FormControl>
+                                            <Input {...field} />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
                             />
-                        </div>
-                        <div>
-                            <Label>Género</Label>
-                            <input
-                                type="text"
-                                value={form.gender.name}
-                                onChange={(e) => onNestedChange('gender', 'name', e.target.value)}
-                                className="input input-bordered w-full"
-                            />
-                        </div>
 
-                        <div>
-                            <Label>País</Label>
-                            <input
-                                type="text"
-                                value={form.country.name}
-                                onChange={(e) => onNestedChange('country', 'name', e.target.value)}
-                                className="input input-bordered w-full"
-                            />
-                        </div>
-                        <div>
-                            <Label>Teléfono</Label>
-                            <input
-                                type="text"
-                                value={form.phone}
-                                onChange={(e) => onChange('phone', e.target.value)}
-                                className="input input-bordered w-full"
-                            />
-                        </div>
-                        <div>
-                            <Label>Estaca</Label>
-                            <input
-                                type="text"
-                                value={form.stake.name}
-                                onChange={(e) => onNestedChange('stake', 'name', e.target.value)}
-                                className="input input-bordered w-full"
-                            />
-                        </div>
-                    </CardContent>
-                </Card>
+                            <div className="grid grid-cols-2 gap-4">
+                                <FormField
+                                    name="gender.name"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <Label>Género</Label>
+                                            <Select onValueChange={field.onChange} value={field.value}>
+                                                <FormControl>
+                                                    <SelectTrigger>
+                                                        <SelectValue placeholder="Selecciona género" />
+                                                    </SelectTrigger>
+                                                </FormControl>
+                                                <SelectContent>
+                                                    {enums?.gender?.length ? (
+                                                        enums.gender.map((g) => (
+                                                            <SelectItem key={g.id} value={g.name}>
+                                                                {g.name}
+                                                            </SelectItem>
+                                                        ))
+                                                    ) : (
+                                                        <SelectItem value="no-options" disabled>
+                                                            No hay opciones disponibles
+                                                        </SelectItem>
+                                                    )}
+                                                </SelectContent>
+                                            </Select>
+                                        </FormItem>
+                                    )}
+                                />
 
-                <Card className="border-blue-200">
-                    <CardHeader className="bg-transparent">
-                        <CardTitle className="text-lg text-blue-700 dark:text-blue-300">Información del Referente</CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                        <div>
-                            <Label>Nombre Completo</Label>
-                            <input
-                                type="text"
-                                value={form.referrer_name}
-                                onChange={(e) => onChange('referrer_name', e.target.value)}
-                                className="input input-bordered w-full"
-                            />
-                        </div>
-                        <div>
-                            <Label>Teléfono</Label>
-                            <input
-                                type="text"
-                                value={form.referrer_phone}
-                                onChange={(e) => onChange('referrer_phone', e.target.value)}
-                                className="input input-bordered w-full"
-                            />
-                        </div>
-                        <div>
-                            <Label>Relación con la persona referida</Label>
-                            <input
-                                type="text"
-                                value={form.relationship_with_referred.name}
-                                onChange={(e) => onNestedChange('relationship_with_referred', 'name', e.target.value)}
-                                className="input input-bordered w-full"
-                            />
-                        </div>
-                    </CardContent>
-                </Card>
-
-                {/* Estado y Seguimiento */}
-                <Card className="border-blue-200">
-                    <CardHeader className="bg-transparent">
-                        <CardTitle className="text-lg text-blue-700 dark:text-blue-300">Estado y Seguimiento</CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                        <div>
-                            <Label>Fecha de Creación</Label>
-                            <input
-                                type="date"
-                                value={form.created_at ? new Date(form.created_at).toISOString().substring(0, 10) : ''}
-                                onChange={(e) => onChange('created_at', e.target.value)}
-                                className="input input-bordered w-full"
-                            />
-                        </div>
-                        <div>
-                            <Label>Estado Actual</Label>
-                            <select
-                                value={form.status.name}
-                                onChange={(e) => onNestedChange('status', 'name', e.target.value)}
-                                className="input input-bordered w-full"
-                            >
-                                <option value="pendiente">Pendiente</option>
-                                <option value="aprobado">Aprobado</option>
-                                <option value="rechazado">Rechazado</option>
-                            </select>
-                        </div>
-                        {form.status.name.toLowerCase() === 'rechazado' && (
-                            <div>
-                                <Label>Razón del Rechazo</Label>
-                                <input
-                                    type="text"
-                                    value={form.declined_reason?.name || ''}
-                                    onChange={(e) => onNestedChange('declined_reason', 'name', e.target.value)}
-                                    className="input input-bordered w-full"
+                                <FormField
+                                    name="phone"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <Label>Teléfono</Label>
+                                            <FormControl>
+                                                <Input {...field} />
+                                            </FormControl>
+                                        </FormItem>
+                                    )}
                                 />
                             </div>
-                        )}
-                    </CardContent>
-                </Card>
 
-                <div className="flex justify-end gap-2">
-                    <Button onClick={handleSubmit} variant="default">
-                        Guardar
-                    </Button>
-                </div>
-            </div>
+                            <div className="grid grid-cols-2 gap-4">
+                                <FormField
+                                    name="country.name"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <Label>País</Label>
+                                            <Select onValueChange={field.onChange} value={field.value}>
+                                                <FormControl>
+                                                    <SelectTrigger>
+                                                        <SelectValue placeholder="Selecciona país" />
+                                                    </SelectTrigger>
+                                                </FormControl>
+                                                <SelectContent>
+                                                    {enums?.country?.length ? (
+                                                        enums.country.map((c) => (
+                                                            <SelectItem key={c.id} value={c.name}>
+                                                                {c.name}
+                                                            </SelectItem>
+                                                        ))
+                                                    ) : (
+                                                        <SelectItem value="no-options" disabled>
+                                                            No hay opciones disponibles
+                                                        </SelectItem>
+                                                    )}
+                                                </SelectContent>
+                                            </Select>
+                                        </FormItem>
+                                    )}
+                                />
+
+                                <FormField
+                                    name="stake.name"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <Label>Estaca</Label>
+                                            <Select onValueChange={field.onChange} value={field.value}>
+                                                <FormControl>
+                                                    <SelectTrigger>
+                                                        <SelectValue placeholder="Selecciona estaca" />
+                                                    </SelectTrigger>
+                                                </FormControl>
+                                                <SelectContent>
+                                                    {enums?.stake?.length ? (
+                                                        enums.stake.map((s) => (
+                                                            <SelectItem key={s.id} value={s.name}>
+                                                                {s.name}
+                                                            </SelectItem>
+                                                        ))
+                                                    ) : (
+                                                        <SelectItem value="no-options" disabled>
+                                                            No hay opciones disponibles
+                                                        </SelectItem>
+                                                    )}
+                                                </SelectContent>
+                                            </Select>
+                                        </FormItem>
+                                    )}
+                                />
+                            </div>
+                        </CardContent>
+                    </Card>
+
+                    {/* --- Información del Referente --- */}
+                    <Card className="border-blue-200">
+                        <CardHeader>
+                            <CardTitle className="text-lg text-blue-700 dark:text-blue-300">Información del Referente</CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-3">
+                            <FormField
+                                name="referrer_name"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <Label>Nombre Completo</Label>
+                                        <FormControl>
+                                            <Input {...field} />
+                                        </FormControl>
+                                    </FormItem>
+                                )}
+                            />
+
+                            <FormField
+                                name="referrer_phone"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <Label>Teléfono</Label>
+                                        <FormControl>
+                                            <Input {...field} />
+                                        </FormControl>
+                                    </FormItem>
+                                )}
+                            />
+
+                            <FormField
+                                name="relationship_with_referred.name"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <Label>Relación con la persona referida</Label>
+                                        <Select onValueChange={field.onChange} value={field.value}>
+                                            <FormControl>
+                                                <SelectTrigger>
+                                                    <SelectValue placeholder="Selecciona relación" />
+                                                </SelectTrigger>
+                                            </FormControl>
+                                            <SelectContent>
+                                                {enums?.relationship?.length ? (
+                                                    enums.relationship.map((r) => (
+                                                        <SelectItem key={r.id} value={r.name}>
+                                                            {r.name}
+                                                        </SelectItem>
+                                                    ))
+                                                ) : (
+                                                    <SelectItem value="no-options" disabled>
+                                                        No hay opciones disponibles
+                                                    </SelectItem>
+                                                )}
+                                            </SelectContent>
+                                        </Select>
+                                    </FormItem>
+                                )}
+                            />
+                        </CardContent>
+                    </Card>
+
+                    {/* --- Estado y Seguimiento --- */}
+                    <Card className="border-blue-200">
+                        <CardHeader>
+                            <CardTitle className="text-lg text-blue-700 dark:text-blue-300">Estado y Seguimiento</CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-3">
+                            <FormField
+                                name="created_at"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <Label>Fecha de Creación</Label>
+                                        <FormControl>
+                                            <Input type="date" {...field} />
+                                        </FormControl>
+                                    </FormItem>
+                                )}
+                            />
+
+                            <FormField
+                                name="status.name"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <Label>Estado Actual</Label>
+                                        <Select onValueChange={field.onChange} value={field.value}>
+                                            <FormControl>
+                                                <SelectTrigger>
+                                                    <SelectValue placeholder="Selecciona estado" />
+                                                </SelectTrigger>
+                                            </FormControl>
+                                            <SelectContent>
+                                                {enums?.status?.length ? (
+                                                    enums.status.map((s) => (
+                                                        <SelectItem key={s.id} value={s.name}>
+                                                            {s.name}
+                                                        </SelectItem>
+                                                    ))
+                                                ) : (
+                                                    <SelectItem value="no-options" disabled>
+                                                        No hay opciones disponibles
+                                                    </SelectItem>
+                                                )}
+                                            </SelectContent>
+                                        </Select>
+                                    </FormItem>
+                                )}
+                            />
+
+                            {selectedStatus?.name?.toLowerCase() === 'rechazado' && (
+                                <FormField
+                                    name="declined_reason.name"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <Label>Razón del Rechazo</Label>
+                                            <Select onValueChange={field.onChange} value={field.value || 'not-specified'}>
+                                                <FormControl>
+                                                    <SelectTrigger>
+                                                        <SelectValue placeholder="Selecciona razón" />
+                                                    </SelectTrigger>
+                                                </FormControl>
+                                                <SelectContent>
+                                                    {enums?.declinedReasons?.length ? (
+                                                        enums.declinedReasons.map((d) => (
+                                                            <SelectItem key={d.id} value={d.name}>
+                                                                {d.name}
+                                                            </SelectItem>
+                                                        ))
+                                                    ) : (
+                                                        <SelectItem value="not-specified">No especificado</SelectItem>
+                                                    )}
+                                                </SelectContent>
+                                            </Select>
+                                        </FormItem>
+                                    )}
+                                />
+                            )}
+                        </CardContent>
+                    </Card>
+
+                    {/* Botones */}
+                    <div className="flex justify-end gap-4">
+                        <Button variant="outline" type="button">
+                            Cancelar
+                        </Button>
+                        <Button type="submit">Guardar Cambios</Button>
+                    </div>
+                </form>
+            </Form>
         </CompleteDialog>
     );
 };

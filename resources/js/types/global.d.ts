@@ -18,4 +18,6 @@ type Enums = {
     referenceStatus: EnumItem[];
     relatedReference: EnumItem[];
     jobType: EnumItem[];
+    country: EnumItem[];
+    stake: EnumItem[];
 };

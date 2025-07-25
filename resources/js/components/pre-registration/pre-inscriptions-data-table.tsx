@@ -159,7 +159,7 @@ export const columns: ColumnDef<PreInscription>[] = [
                             <PreInscriptionOverview preInscription={preInscription} />
                         </DropdownMenuItem>
                         <DropdownMenuItem className="focus:bg-blue-50" asChild>
-                            <PreInscriptionEdit preInscription={preInscription} />
+                            <PreInscriptionEdit preInscription={preInscription} countries={[]} stakes={[]} />
                         </DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>

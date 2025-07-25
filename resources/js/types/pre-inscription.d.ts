@@ -1,4 +1,3 @@
-import { ReferenceFormData } from "./reference";
 /**
  * Tipo base para una pre-inscripción con todos sus campos y relaciones
  */
@@ -121,23 +120,15 @@ type PreInscriptionsPaginatedResponse = {
     to: number;
 };
 
-export type {
-    PreInscription,
-    PreInscriptionFormData,
-    PreInscriptionUpdateFormData,
-    PreInscriptionFilters,
-    PreInscriptionsPaginatedResponse,
-};
-
+export type { PreInscription, PreInscriptionFilters, PreInscriptionFormData, PreInscriptionsPaginatedResponse, PreInscriptionUpdateFormData };
 
 export type PreRegistrationRequest = {
     data: any;
-    setData: ((field: any, value: any) => void);
+    setData: (field: any, value: any) => void;
     post: (...args: any[]) => void;
     processing: boolean;
     errors: Record<string, string>;
-
-}
+};
 
 export type PreRegistrationFormData = {
     first_name: string;
@@ -157,4 +148,4 @@ export type PreRegistrationFormData = {
     job_type_preference?: number | null;
     currently_working?: boolean | null;
     available_full_time?: boolean | null;
-}
+};

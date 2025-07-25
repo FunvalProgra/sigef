@@ -1,3 +1,5 @@
+import { Enums } from '@/types/global';
+import { usePage } from '@inertiajs/react';
 import { Pencil } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { type PreInscription } from '../../types/pre-inscription';
@@ -9,25 +11,65 @@ import { Input } from '../ui/input';
 import { Label } from '../ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 
-const PreInscriptionEdit = ({ preInscription }: { preInscription: PreInscription }) => {
-    const defaultValues = {
-        ...preInscription,
-        gender: preInscription.gender?.name ?? '',
-        marital_status: preInscription.marital_status?.name ?? '',
-        country: preInscription.country?.name ?? '',
-        stake: preInscription.stake?.name ?? '',
-        job_type_preference: preInscription.job_type_preference?.name ?? '',
-        status: preInscription.status?.name ?? '',
+type FormValues = {
+    first_name: string;
+    middle_name?: string;
+    last_name: string;
+    second_last_name?: string;
+    gender: string;
+    age?: number;
+    marital_status: string;
+    email: string;
+    phone?: string;
+    country: string;
+    stake?: string;
+    served_mission: boolean;
+    currently_working: boolean;
+    available_full_time: boolean;
+    job_type_preference: string;
+    status: string;
+    comments?: string;
+};
+
+interface PreInscriptionEditProps {
+    preInscription: PreInscription;
+    countries: Array<{ id: number; name: string }>;
+    stakes: Array<{ id: number; name: string; country_id: number }>;
+}
+
+const PreInscriptionEdit = ({ preInscription, countries = [], stakes = [] }: PreInscriptionEditProps) => {
+    const { enums } = usePage<{ enums: Enums }>().props;
+
+    const defaultValues: FormValues = {
+        first_name: preInscription.first_name ?? '',
+        middle_name: preInscription.middle_name ?? '',
+        last_name: preInscription.last_name ?? '',
+        second_last_name: preInscription.second_last_name ?? '',
+        gender: preInscription.gender?.id?.toString() ?? '',
+        age: preInscription.age ?? undefined,
+        marital_status: preInscription.marital_status?.id?.toString() ?? '',
+        email: preInscription.email ?? '',
+        phone: preInscription.phone ?? '',
+        country: preInscription.country?.id?.toString() ?? '',
+        stake: preInscription.stake?.id?.toString() ?? '',
+        served_mission: preInscription.served_mission ?? false,
+        currently_working: preInscription.currently_working ?? false,
+        available_full_time: preInscription.available_full_time ?? false,
+        job_type_preference: preInscription.job_type_preference?.id?.toString() ?? '',
+        status: preInscription.status?.id?.toString() ?? '',
+        comments: preInscription.comments ?? '',
     };
 
-    const form = useForm({
-        defaultValues,
-    });
+    const form = useForm<FormValues>({ defaultValues });
 
-    const onSubmit = (data: any) => {
+    // Filtrar estacas basadas en el país seleccionado
+    const selectedCountry = form.watch('country');
+    const filteredStakes = selectedCountry ? stakes.filter((stake) => stake.country_id === Number(selectedCountry)) : [];
+
+    const onSubmit = (data: FormValues) => {
         console.log('Datos actualizados:', data);
+        // Aquí agregar la lógica para enviar los datos al backend o actualizar estado
     };
-
     return (
         <CompleteDialog
             btnLabel="Editar"
@@ -37,8 +79,9 @@ const PreInscriptionEdit = ({ preInscription }: { preInscription: PreInscription
         >
             <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="grid max-h-[80vh] gap-6 overflow-y-auto py-4">
+                    {/* --- Información Personal --- */}
                     <Card className="border-blue-200">
-                        <CardHeader className="bg-transparent">
+                        <CardHeader>
                             <CardTitle className="text-lg text-blue-700 dark:text-blue-300">Información Personal</CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-3">
@@ -69,6 +112,7 @@ const PreInscriptionEdit = ({ preInscription }: { preInscription: PreInscription
                                     )}
                                 />
                             </div>
+
                             <div className="grid grid-cols-2 gap-4">
                                 <FormField
                                     name="last_name"
@@ -96,6 +140,7 @@ const PreInscriptionEdit = ({ preInscription }: { preInscription: PreInscription
                                     )}
                                 />
                             </div>
+
                             <div className="grid grid-cols-2 gap-4">
                                 <FormField
                                     name="gender"
@@ -110,11 +155,20 @@ const PreInscriptionEdit = ({ preInscription }: { preInscription: PreInscription
                                                     </SelectTrigger>
                                                 </FormControl>
                                                 <SelectContent>
-                                                    <SelectItem value="Masculino">Masculino</SelectItem>
-                                                    <SelectItem value="Femenino">Femenino</SelectItem>
-                                                    <SelectItem value="Otro">Otro</SelectItem>
+                                                    {enums?.gender?.length ? (
+                                                        enums.gender.map((g) => (
+                                                            <SelectItem key={g.id} value={g.id.toString()}>
+                                                                {g.name}
+                                                            </SelectItem>
+                                                        ))
+                                                    ) : (
+                                                        <SelectItem value="none" disabled>
+                                                            No hay opciones
+                                                        </SelectItem>
+                                                    )}
                                                 </SelectContent>
                                             </Select>
+                                            <FormMessage />
                                         </FormItem>
                                     )}
                                 />
@@ -131,6 +185,7 @@ const PreInscriptionEdit = ({ preInscription }: { preInscription: PreInscription
                                     )}
                                 />
                             </div>
+
                             <div className="grid grid-cols-2 gap-4">
                                 <FormField
                                     name="marital_status"
@@ -145,16 +200,25 @@ const PreInscriptionEdit = ({ preInscription }: { preInscription: PreInscription
                                                     </SelectTrigger>
                                                 </FormControl>
                                                 <SelectContent>
-                                                    <SelectItem value="Soltero/a">Soltero/a</SelectItem>
-                                                    <SelectItem value="Casado/a">Casado/a</SelectItem>
-                                                    <SelectItem value="Divorciado/a">Divorciado/a</SelectItem>
-                                                    <SelectItem value="Viudo/a">Viudo/a</SelectItem>
+                                                    {enums?.maritalStatus?.length ? (
+                                                        enums.maritalStatus.map((m) => (
+                                                            <SelectItem key={m.id} value={m.id.toString()}>
+                                                                {m.name}
+                                                            </SelectItem>
+                                                        ))
+                                                    ) : (
+                                                        <SelectItem value="none" disabled>
+                                                            No hay opciones
+                                                        </SelectItem>
+                                                    )}
                                                 </SelectContent>
                                             </Select>
+                                            <FormMessage />
                                         </FormItem>
                                     )}
                                 />
                             </div>
+
                             <div className="grid grid-cols-2 gap-4">
                                 <FormField
                                     name="email"
@@ -185,8 +249,9 @@ const PreInscriptionEdit = ({ preInscription }: { preInscription: PreInscription
                         </CardContent>
                     </Card>
 
+                    {/* --- Ubicación --- */}
                     <Card className="border-blue-200">
-                        <CardHeader className="bg-transparent">
+                        <CardHeader>
                             <CardTitle className="text-lg text-blue-700 dark:text-blue-300">Ubicación</CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-3">
@@ -204,9 +269,17 @@ const PreInscriptionEdit = ({ preInscription }: { preInscription: PreInscription
                                                     </SelectTrigger>
                                                 </FormControl>
                                                 <SelectContent>
-                                                    <SelectItem value="México">México</SelectItem>
-                                                    <SelectItem value="Estados Unidos">Estados Unidos</SelectItem>
-                                                    <SelectItem value="Colombia">Colombia</SelectItem>
+                                                    {enums?.country?.length ? (
+                                                        enums.country.map((c) => (
+                                                            <SelectItem key={c.id} value={c.id.toString()}>
+                                                                {c.name}
+                                                            </SelectItem>
+                                                        ))
+                                                    ) : (
+                                                        <SelectItem value="none" disabled>
+                                                            No hay opciones
+                                                        </SelectItem>
+                                                    )}
                                                 </SelectContent>
                                             </Select>
                                         </FormItem>
@@ -218,9 +291,26 @@ const PreInscriptionEdit = ({ preInscription }: { preInscription: PreInscription
                                     render={({ field }) => (
                                         <FormItem>
                                             <Label>Estaca</Label>
-                                            <FormControl>
-                                                <Input {...field} />
-                                            </FormControl>
+                                            <Select onValueChange={field.onChange} value={field.value}>
+                                                <FormControl>
+                                                    <SelectTrigger>
+                                                        <SelectValue placeholder="Selecciona país" />
+                                                    </SelectTrigger>
+                                                </FormControl>
+                                                <SelectContent>
+                                                    {enums?.stake?.length ? (
+                                                        enums.country.map((c) => (
+                                                            <SelectItem key={c.id} value={c.id.toString()}>
+                                                                {c.name}
+                                                            </SelectItem>
+                                                        ))
+                                                    ) : (
+                                                        <SelectItem value="none" disabled>
+                                                            No hay opciones
+                                                        </SelectItem>
+                                                    )}
+                                                </SelectContent>
+                                            </Select>
                                         </FormItem>
                                     )}
                                 />
@@ -228,8 +318,9 @@ const PreInscriptionEdit = ({ preInscription }: { preInscription: PreInscription
                         </CardContent>
                     </Card>
 
+                    {/* --- Info Laboral y Servicio --- */}
                     <Card className="border-blue-200">
-                        <CardHeader className="bg-transparent">
+                        <CardHeader>
                             <CardTitle className="text-lg text-blue-700 dark:text-blue-300">Información Laboral y de Servicio</CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-3">
@@ -302,9 +393,26 @@ const PreInscriptionEdit = ({ preInscription }: { preInscription: PreInscription
                                     render={({ field }) => (
                                         <FormItem>
                                             <Label>Preferencia Laboral</Label>
-                                            <FormControl>
-                                                <Input {...field} />
-                                            </FormControl>
+                                            <Select onValueChange={field.onChange} value={field.value}>
+                                                <FormControl>
+                                                    <SelectTrigger>
+                                                        <SelectValue placeholder="Selecciona preferencia" />
+                                                    </SelectTrigger>
+                                                </FormControl>
+                                                <SelectContent>
+                                                    {enums?.jobType?.length ? (
+                                                        enums.jobType.map((j) => (
+                                                            <SelectItem key={j.id} value={j.id.toString()}>
+                                                                {j.name}
+                                                            </SelectItem>
+                                                        ))
+                                                    ) : (
+                                                        <SelectItem value="none" disabled>
+                                                            No hay opciones
+                                                        </SelectItem>
+                                                    )}
+                                                </SelectContent>
+                                            </Select>
                                         </FormItem>
                                     )}
                                 />
@@ -312,8 +420,9 @@ const PreInscriptionEdit = ({ preInscription }: { preInscription: PreInscription
                         </CardContent>
                     </Card>
 
+                    {/* --- Estado y Seguimiento --- */}
                     <Card className="border-blue-200">
-                        <CardHeader className="bg-transparent">
+                        <CardHeader>
                             <CardTitle className="text-lg text-blue-700 dark:text-blue-300">Estado y Seguimiento</CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-3">
@@ -335,9 +444,17 @@ const PreInscriptionEdit = ({ preInscription }: { preInscription: PreInscription
                                                     </SelectTrigger>
                                                 </FormControl>
                                                 <SelectContent>
-                                                    <SelectItem value="Pendiente">Pendiente</SelectItem>
-                                                    <SelectItem value="Aprobado">Aprobado</SelectItem>
-                                                    <SelectItem value="Rechazado">Rechazado</SelectItem>
+                                                    {enums?.statusEnum?.length ? (
+                                                        enums.statusEnum.map((s) => (
+                                                            <SelectItem key={s.id} value={s.id.toString()}>
+                                                                {s.name}
+                                                            </SelectItem>
+                                                        ))
+                                                    ) : (
+                                                        <SelectItem value="none" disabled>
+                                                            No hay opciones
+                                                        </SelectItem>
+                                                    )}
                                                 </SelectContent>
                                             </Select>
                                         </FormItem>
@@ -359,6 +476,7 @@ const PreInscriptionEdit = ({ preInscription }: { preInscription: PreInscription
                         </CardContent>
                     </Card>
 
+                    {/* Botones */}
                     <div className="flex justify-end gap-4">
                         <Button variant="outline" type="button">
                             Cancelar
