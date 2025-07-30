@@ -2,6 +2,7 @@
 
 use App\Enums\GenderEnum;
 use App\Enums\MaritalStatusEnum;
+use App\Enums\ReferenceStatusEnum;
 use App\Enums\RequestStatusEnum;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -31,7 +32,7 @@ return new class extends Migration
             $table->boolean('available_full_time')->nullable();
             $table->integer('status')->default(RequestStatusEnum::PENDING->value);
             $table->text('comments')->nullable();
-            $table->integer('declined_reason')->nullable();
+            $table->integer('declined_reason')->default(ReferenceStatusEnum::PENDING_CONTACT->value);
             $table->integer('modified_by')->nullable();
             $table->foreignId('country_id')->constrained()->onDelete('cascade');
             $table->foreignId('stake_id')->constrained()->onDelete('cascade');
